@@ -1,0 +1,204 @@
+
+
+
+<html lang="en">
+<head>
+  <style>/* General styling */
+body {
+    font-family: 'Comic Sans MS', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #000;
+    color: white;
+    margin: 0;
+    height: 100vh;
+}
+
+/* Header styling */
+h1 {
+    margin: 20px;
+}
+
+/* Game information */
+#gameInfo {
+    display: flex;
+    justify-content: space-around;
+    width: 600px;
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+
+/* Game area styling */
+#gameArea {
+    position: relative;
+    width: 600px;
+    height: 400px;
+    background-color: #1a1a1a;
+    border: 5px solid white;
+    overflow: hidden;
+}
+
+/* Star styling */
+.star {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background-color: yellow;
+    border-radius: 50%;
+    box-shadow: 0 0 10px yellow;
+}
+
+/* Game Over message */
+#gameOver {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 48px;
+    color: red;
+}
+
+/* Hidden class */
+.hidden {
+    display: none;
+}
+
+/* Restart button styling */
+#restartButton {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 20px;
+    background-color: #f39c12;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#restartButton:hover {
+    background-color: #e67e22;
+}
+
+</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxy Star Collector Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Galaxy Star Collector Game</h1>
+    <div id="gameInfo">
+        <div>Level: <span id="level">1</span></div>
+        <div>Time Left: <span id="timer">30</span> seconds</div>
+        <div>Stars Collected: <span id="score">0</span></div>
+    </div>
+    <div id="gameArea"></div>
+    <div id="gameOver" class="hidden">Game Over! Time's Up!</div>
+    <button id="restartButton" class="hidden">Restart Game</button>
+
+    <script>// Game variables
+let gameArea = document.getElementById("gameArea");
+let scoreElement = document.getElementById("score");
+let levelElement = document.getElementById("level");
+let timerElement = document.getElementById("timer");
+let gameOverElement = document.getElementById("gameOver");
+let restartButton = document.getElementById("restartButton");
+let stars = [];
+let score = 0;
+let level = 1;
+let timeLeft; // Time left for the current level
+let gameTimer;
+let starCount = 3; // Starting number of stars to collect per level
+
+// Start the game for the first time
+startLevel();
+
+// Function to start the level
+function startLevel() {
+    resetLevel();
+    createStars();
+    startTimer();
+}
+
+// Function to reset the level state
+function resetLevel() {
+    timeLeft = 30 - (level * 2); // Decrease time limit with each level (e.g., 30, 28, 26, ...)
+    if (timeLeft < 10) timeLeft = 10; // Minimum time limit
+    scoreElement.textContent = score;
+    levelElement.textContent = level;
+    timerElement.textContent = timeLeft;
+    gameOverElement.classList.add("hidden");
+    restartButton.classList.add("hidden");
+}
+
+// Function to create stars
+function createStars() {
+    stars.forEach(star => star.remove()); // Remove previous stars
+    stars = []; // Reset stars array
+
+    for (let i = 0; i < starCount; i++) {
+        let star = document.createElement("div");
+        star.classList.add("star");
+        star.style.left = Math.random() * (gameArea.offsetWidth - 30) + "px";
+        star.style.top = Math.random() * (gameArea.offsetHeight - 30) + "px";
+        gameArea.appendChild(star);
+        stars.push(star);
+
+        // Add click event to collect star
+        star.addEventListener("click", () => {
+            collectStar(star);
+        });
+    }
+}
+
+// Function to start the timer
+function startTimer() {
+    timerElement.textContent = timeLeft;
+    gameTimer = setInterval(() => {
+        timeLeft--;
+        timerElement.textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+            endGame();
+        }
+    }, 1000);
+}
+
+// Function to collect a star
+function collectStar(star) {
+    star.remove(); // Remove star from the game area
+    stars.splice(stars.indexOf(star), 1); // Remove star from stars array
+    score++;
+    scoreElement.textContent = score;
+
+    if (stars.length === 0) {
+        nextLevel();
+    }
+}
+
+// Function to move to the next level
+function nextLevel() {
+    level++;
+    levelElement.textContent = level;
+    starCount += 1; // Add an extra star each level
+    clearInterval(gameTimer); // Stop the current timer
+    startLevel(); // Start the next level
+}
+
+// Function to end the game
+function endGame() {
+    clearInterval(gameTimer);
+    gameOverElement.classList.remove("hidden");
+    restartButton.classList.remove("hidden");
+}
+
+// Restart button event listener
+restartButton.addEventListener("click", () => {
+    score = 0; // Reset score for a new game
+    level = 1; // Reset level for a new game
+    startLevel(); // Restart the game
+});
+</script>
+</body>
+</html>
